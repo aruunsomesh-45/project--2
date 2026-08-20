@@ -24,16 +24,18 @@ if os.path.exists(env_file):
     environ.Env.read_env(env_file)
 
 
-# Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
+# All three of these are env-driven so local dev (.env) and production
+# (Vercel env vars) can safely differ — production defaults to the SAFE
+# side (DEBUG off) rather than trusting someone to remember to set it.
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hkl(i%i%5apfc(5(&&w&_ygx-o*57z_t@ose(#-wrut)hh948l'
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-hkl(i%i%5apfc(5(&&w&_ygx-o*57z_t@ose(#-wrut)hh948l')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 
 # Application definition
