@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Screening Report — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container container--medium" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    {% if is_teacher_view %}
+        <div style="margin-bottom: var(--space-lg);">
+            <a href="javascript:history.back()" class="text-muted" style="font-size: 0.875rem; text-decoration: none;">← Back</a>
+        </div>
+        <h1 style="margin-bottom: var(--space-xs);">Screening Report — {{ report.student.profile.full_name }}</h1>
+    {% else %}
+        <h1 style="margin-bottom: var(--space-xs);">Your Screening Report</h1>
+    {% endif %}
+    <p class="text-muted" style="margin-bottom: var(--space-xl);">Generated {{ report.generated_at|date:"M d, Y" }} · {{ report.attempt.get_tier_display }}</p>
+
+    <div class="card" style="margin-bottom: var(--space-lg);">
+        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Core Test Scores</h3>
+        <div class="dimension-bar">
+            <span class="dimension-bar__label">Subject Knowledge</span>
+            <div class="dimension-bar__track"><div class="dimension-bar__fill" style="--bar-pct: {{ report.subject_knowledge_score }}%;"></div></div>
+            <span class="dimension-bar__value">{{ report.subject_knowledge_score }}%</span>
+        </div>
+        <div class="dimension-bar">
+            <span class="dimension-bar__label">Cognitive Aptitude</span>
+            <div class="dimension-bar__track"><div class="dimension-bar__fill" style="--bar-pct: {{ report.cognitive_aptitude_score }}%;"></div></div>
+            <span class="dimension-bar__value">{{ report.cognitive_aptitude_score }}%</span>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); margin-bottom: var(--space-lg);">
+        <div class="card">
+            <h3 style="font-size: 1.0625rem; margin-bottom: 4px;">Personality</h3>
+            <p style="font-size: 1.125rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 0;">{{ report.personality_tag|default:"—" }}</p>
+        </div>
+        <div class="card">
+            <h3 style="font-size: 1.0625rem; margin-bottom: 4px;">Interest Area</h3>
+            <p style="font-size: 1.125rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 0;">{{ report.interest_tag|default:"—" }}</p>
+        </div>
+        <div class="card">
+            <h3 style="font-size: 1.0625rem; margin-bottom: 4px;">Learning Style</h3>
+            <p style="font-size: 1.125rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 0;">{{ report.learning_style_tag|default:"—" }}</p>
+        </div>
+        {% if is_teacher_view %}
+        <div class="card" style="border-top: 4px solid {% if report.wellbeing_flag == 'Green' %}var(--state-success){% elif report.wellbeing_flag == 'Red' %}var(--state-error){% else %}var(--state-warning){% endif %};">
+            <h3 style="font-size: 1.0625rem; margin-bottom: 4px;">Wellbeing <span class="text-muted" style="font-weight: 400; font-size: 0.75rem;">(teacher-only)</span></h3>
+            <p style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0;">{{ report.wellbeing_flag|default:"—" }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if is_teacher_view and report.soft_skills_tags %}
+    <div class="card" style="margin-bottom: var(--space-lg);">
+        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Soft Skills & Behavior <span class="text-muted" style="font-weight: 400; font-size: 0.75rem;">(teacher-only)</span></h3>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm);">
+            {% for key, tag in report.soft_skills_tags.items %}
+                <span style="display: inline-block; background: var(--bg-surface); border: 1px solid var(--border-default); padding: 4px 12px; border-radius: 9999px; font-size: 0.875rem;">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if report.open_message %}
+    <div class="card" style="margin-bottom: var(--space-lg);">
+        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-sm);">
+            {% if is_teacher_view %}Message to Teacher{% else %}Your Message to Your Teacher{% endif %}
+        </h3>
+        <p class="text-muted" style="margin-bottom: 0; font-style: italic;">"{{ report.open_message }}"</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

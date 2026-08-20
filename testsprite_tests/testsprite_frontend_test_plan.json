@@ -1,0 +1,862 @@
+[
+  {
+    "id": "TC001",
+    "title": "Student can complete the assessment and see a Learning Profile",
+    "description": "This verifies that a student can answer the assessment, submit it, and receive generated profile results.",
+    "category": "Student Onboarding and Assessment",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link or button to continue to onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the assessment"
+      },
+      {
+        "type": "action",
+        "description": "Select an answer for each assessment question"
+      },
+      {
+        "type": "action",
+        "description": "Submit the completed assessment"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Learning Profile results are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an archetype and dimension bars are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Teacher can create a class and see its shareable code",
+    "description": "This verifies that a signed-in teacher can create a class from the dashboard and receive a generated class code.",
+    "category": "Teacher Registration & Dashboard Class Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the class name field with a valid class name"
+      },
+      {
+        "type": "action",
+        "description": "Create the class"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new class appears in the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a 6-character class code is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Student can register as a student and access the platform",
+    "description": "This verifies that a new student can create an account with the student role and reach authenticated access.",
+    "category": "Student Registration & Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/register/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the full name field with a valid name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify authenticated access is available"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the student account registration is successful"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Student can log in to an existing account",
+    "description": "This verifies that a registered student can sign in and reach authenticated parts of the platform.",
+    "category": "Student Registration & Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify authenticated access is available"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the platform after signing in"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Student can view onboarding before starting the assessment",
+    "description": "This verifies that an authenticated student can open onboarding and continue into the assessment flow.",
+    "category": "Student Onboarding and Assessment",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link or button to continue to onboarding"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the onboarding introduction is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the assessment entry point is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Student can join a class with a valid code and see it in joined classes",
+    "description": "This verifies that a student can join a teacher’s class using a valid 6-character code and see the class reflected afterward.",
+    "category": "Student Onboarding and Assessment",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid 6-character class code"
+      },
+      {
+        "type": "action",
+        "description": "Join the class"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the class join succeeds"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the joined class appears in the student’s enrolled classes"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Open a student profile from the class roster",
+    "description": "A teacher can open a class roster and select an enrolled student to review the student intelligence profile.",
+    "category": "Teacher Views Student Intelligence Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/"
+      },
+      {
+        "type": "action",
+        "description": "Open a class"
+      },
+      {
+        "type": "action",
+        "description": "Select an enrolled student"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the student intelligence profile is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Teacher can review a student intelligence profile from a class roster",
+    "description": "This verifies that a teacher can open an enrolled student’s profile and view the full intelligence summary.",
+    "category": "Teacher Registration & Dashboard Class Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/"
+      },
+      {
+        "type": "action",
+        "description": "Open a class from the dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Select an enrolled student from the roster"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the student intelligence profile is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify strengths, challenges, and teaching recommendations are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Teacher can open a class and review enrolled students",
+    "description": "This verifies that a teacher can open a created class and see the roster with enrolled students.",
+    "category": "Teacher Registration & Dashboard Class Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/"
+      },
+      {
+        "type": "action",
+        "description": "Open a class from the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the class roster is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify enrolled students are listed when present"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Join a class with a valid code",
+    "description": "An authenticated student can join a class using a valid 6-character code and see the class added to their enrolled classes.",
+    "category": "Student Joins Class",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the class code field with a valid 6-character code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a join success confirmation is visible and the class appears in the enrolled classes list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Show the full profile insights for a student",
+    "description": "A teacher can review a student profile and see the archetype, dimension score bars, strengths, challenges, and teaching recommendations.",
+    "category": "Teacher Views Student Intelligence Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/"
+      },
+      {
+        "type": "action",
+        "description": "Open a class"
+      },
+      {
+        "type": "action",
+        "description": "Select an enrolled student"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the student archetype is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dimension scores, strengths, challenges, and teaching recommendations are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Student can resume assessment progress after leaving and returning",
+    "description": "This verifies that a student’s partial assessment progress remains available when they revisit the assessment page during the same browser session.",
+    "category": "Student Onboarding and Assessment",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link or button to continue to onboarding"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the assessment"
+      },
+      {
+        "type": "action",
+        "description": "Select an answer for the first few assessment questions"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /assessment/profile/"
+      },
+      {
+        "type": "action",
+        "description": "Return to the assessment page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify previously entered assessment progress is still present"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the assessment can continue from saved progress"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Return to a student profile after navigating away",
+    "description": "A teacher can navigate away from a student profile and return to confirm the profile remains accessible from the class roster.",
+    "category": "Teacher Views Student Intelligence Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/"
+      },
+      {
+        "type": "action",
+        "description": "Open a class"
+      },
+      {
+        "type": "action",
+        "description": "Select an enrolled student"
+      },
+      {
+        "type": "action",
+        "description": "Navigate back to the class roster"
+      },
+      {
+        "type": "action",
+        "description": "Select the same enrolled student again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the student intelligence profile is displayed again"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC014",
+    "title": "Keep joined class visible after returning to the join page",
+    "description": "An authenticated student can revisit the join page after successfully joining a class and still see the joined class reflected in their enrolled classes.",
+    "category": "Student Joins Class",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the class code field with a valid 6-character code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the joined class is still shown in the enrolled classes list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC015",
+    "title": "Student sees validation when required registration fields are missing",
+    "description": "This verifies that registration does not proceed when required student account fields are omitted.",
+    "category": "Student Registration & Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/register/"
+      },
+      {
+        "type": "action",
+        "description": "Leave the full name field empty"
+      },
+      {
+        "type": "action",
+        "description": "Leave the email field empty"
+      },
+      {
+        "type": "action",
+        "description": "Leave the password field empty"
+      },
+      {
+        "type": "action",
+        "description": "Select the student role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify form validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the account is not created"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Teacher sees validation when class name is missing",
+    "description": "This verifies that a teacher cannot create a class without providing a class name.",
+    "category": "Teacher Registration & Dashboard Class Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/"
+      },
+      {
+        "type": "action",
+        "description": "Leave the class name field empty"
+      },
+      {
+        "type": "action",
+        "description": "Create the class"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify form validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no class is created"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Student sees an empty state when no classes are joined",
+    "description": "This verifies that a student with no joined classes sees an empty state instead of a roster or class list.",
+    "category": "Student Onboarding and Assessment",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no joined classes are listed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC018",
+    "title": "Reject an invalid class code",
+    "description": "An authenticated student sees a validation error when they try to join a class with an invalid code and no class is added.",
+    "category": "Student Joins Class",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the class code field with an invalid class code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a class code validation error is visible and no new class appears in the enrolled classes list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC019",
+    "title": "Block duplicate class joins",
+    "description": "An authenticated student cannot join the same class twice and sees a duplicate join error instead of a second enrollment.",
+    "category": "Student Joins Class",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the class code field with a valid 6-character code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the class code field with the same 6-character code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a duplicate join error is visible and the class appears only once in the enrolled classes list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC020",
+    "title": "Require a class code before joining",
+    "description": "An authenticated student sees a form validation error when they submit the join form without entering a class code.",
+    "category": "Student Joins Class",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /accounts/login/"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /classroom/join/"
+      },
+      {
+        "type": "action",
+        "description": "Submit the join form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a class code required validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]

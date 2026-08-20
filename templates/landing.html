@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}LearnProfile — Discover How You Learn Best{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Discover Your Unique Learning Profile</h1>
+    <p>Take a short assessment to understand how you learn best. Get personalized strengths, challenges, and study recommendations — all backed by science.</p>
+    <div class="hero-actions">
+        <a href="{% url 'accounts:register' %}" class="btn btn--primary btn--large">Get Started Free</a>
+        <a href="{% url 'accounts:login' %}" class="btn btn--secondary btn--large">Log In</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}My Study Plan — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container container--medium" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <h1 style="margin-bottom: var(--space-xl);">My Study Plan</h1>
+
+    {% if plans_with_data %}
+        {% for item in plans_with_data %}
+            <div class="card" style="margin-bottom: var(--space-xl); padding: var(--space-xl);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md); flex-wrap: wrap; gap: var(--space-sm);">
+                    <div>
+                        <h2 style="margin-bottom: 4px;">{{ item.plan.title|default:item.plan.subject }}</h2>
+                        <p class="text-muted" style="margin-bottom: 0;">{{ item.plan.subject }} · {{ item.plan.goal }}</p>
+                    </div>
+                    <div style="text-align: right; min-width: 140px;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent-primary);">{{ item.progress.completion_pct }}%</div>
+                        <div class="progress-bar" style="width: 140px;"><div class="progress-bar__fill" style="width: {{ item.progress.completion_pct }}%;"></div></div>
+                    </div>
+                </div>
+
+                <!-- Today -->
+                <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-sm);">Today</h3>
+                {% if item.today %}
+                    <div style="display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-lg);">
+                        {% for task in item.today %}
+                            <div class="card" style="padding: var(--space-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-sm);">
+                                <div>
+                                    <strong>{{ task.title }}</strong>
+                                    <span class="text-muted" style="font-size: 0.8125rem;"> — {{ task.estimated_minutes }} min · {{ task.get_task_type_display }}</span>
+                                    {% if task.description %}<div class="text-muted" style="font-size: 0.8125rem;">{{ task.description }}</div>{% endif %}
+                                </div>
+                                <div style="display: flex; gap: 6px;">
+                                    {% if task.status == 'pending' %}
+                                        <form method="post" action="{% url 'study_plans:task_start' task.pk %}">{% csrf_token %}<button type="submit" class="btn btn--ghost btn--sm">Start</button></form>
+                                    {% endif %}
+                                    {% if task.status == 'pending' or task.status == 'in_progress' %}
+                                        <form method="post" action="{% url 'study_plans:task_complete' task.pk %}">{% csrf_token %}<button type="submit" class="btn btn--primary btn--sm">Complete</button></form>
+                                        <form method="post" action="{% url 'study_plans:task_skip' task.pk %}" data-no-loading-state="true">{% csrf_token %}<button type="submit" class="btn btn--ghost btn--sm">Skip</button></form>
+                                    {% else %}
+                                        <span class="text-muted" style="font-size: 0.8125rem;">{{ task.get_status_display }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted" style="margin-bottom: var(--space-lg);">No tasks scheduled for today.</p>
+                {% endif %}
+
+                <!-- Upcoming -->
+                <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-sm);">Upcoming</h3>
+                {% if item.upcoming %}
+                    <ul style="list-style: none; padding: 0; margin-bottom: var(--space-lg); display: flex; flex-direction: column; gap: 6px;">
+                        {% for task in item.upcoming %}
+                            <li class="text-muted" style="font-size: 0.9375rem;">{{ task.date|date:"M d" }} — {{ task.title }} ({{ task.estimated_minutes }} min)</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted" style="margin-bottom: var(--space-lg);">Nothing scheduled beyond today yet.</p>
+                {% endif %}
+
+                <!-- Completed -->
+                <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-sm);">Completed</h3>
+                {% if item.completed %}
+                    <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px;">
+                        {% for task in item.completed %}
+                            <li style="font-size: 0.9375rem;"><span style="color: var(--state-success);">✓</span> {{ task.title }} <span class="text-muted" style="font-size: 0.8125rem;">({{ task.completed_at|date:"M d" }})</span></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted" style="margin-bottom: 0;">Nothing completed yet — you've got this!</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align: center; padding: var(--space-3xl);">
+            <p class="text-muted" style="margin-bottom: 0;">You don't have an active study plan yet. Your teacher will assign one once it's ready.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

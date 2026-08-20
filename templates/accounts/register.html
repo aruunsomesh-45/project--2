@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card card card--elevated">
+        <h1>Create your account</h1>
+        <p class="text-muted">Start discovering how you learn best</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Role Selector -->
+            <div class="role-selector">
+                <label class="role-option selected" id="role-student-label">
+                    <input type="radio" name="role" value="student" checked>
+                    🎓 I'm a Student
+                </label>
+                <label class="role-option" id="role-teacher-label">
+                    <input type="radio" name="role" value="teacher">
+                    📚 I'm a Teacher
+                </label>
+            </div>
+
+            <!-- Full Name -->
+            <div class="form-group">
+                <label for="id_full_name">Full Name</label>
+                <input type="text" name="full_name" id="id_full_name"
+                       class="{% if form.full_name.errors %}is-invalid{% endif %}"
+                       placeholder="Your full name"
+                       value="{{ form.full_name.value|default:'' }}" required>
+                {% if form.full_name.errors %}
+                    <div class="invalid-feedback">{{ form.full_name.errors|join:" " }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                <input type="email" name="email" id="id_email"
+                       class="{% if form.email.errors %}is-invalid{% endif %}"
+                       placeholder="you@example.com"
+                       value="{{ form.email.value|default:'' }}" required>
+                {% if form.email.errors %}
+                    <div class="invalid-feedback">{{ form.email.errors|join:" " }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password"
+                       class="{% if form.password.errors %}is-invalid{% endif %}"
+                       placeholder="Create a password (min 8 chars)" minlength="8" required>
+                {% if form.password.errors %}
+                    <div class="invalid-feedback">{{ form.password.errors|join:" " }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label for="id_password_confirm">Confirm Password</label>
+                <input type="password" name="password_confirm" id="id_password_confirm"
+                       class="{% if form.password_confirm.errors %}is-invalid{% endif %}"
+                       placeholder="Confirm your password" minlength="8" required>
+                <div class="invalid-feedback" id="password-match-error" style="display: none;">Passwords do not match.</div>
+                {% if form.password_confirm.errors %}
+                    <div class="invalid-feedback">{{ form.password_confirm.errors|join:" " }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+                <div class="form-errors" style="margin-bottom: var(--space-md);">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn--primary btn--large btn--full">Create Account</button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <p>Or</p>
+            <form action="{% url 'social:begin' 'google-oauth2' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--google" style="display: block; width: 100%; background-color: #fff; color: #757575; border: 1px solid #ccc; padding: 10px; border-radius: 4px; font-weight: 500; cursor: pointer;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style="height:1em; vertical-align:middle; margin-right:0.5rem;"/>
+                    Sign up with Google
+                </button>
+            </form>
+        </div>
+
+        <p class="auth-footer">
+            Already have an account? <a href="{% url 'accounts:login' %}">Log in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Role selector interactivity
+    document.querySelectorAll('.role-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
+            radio.closest('.role-option').classList.add('selected');
+        });
+    });
+
+    // Live password-match validation
+    const passwordInput = document.getElementById('id_password');
+    const confirmInput = document.getElementById('id_password_confirm');
+    const matchError = document.getElementById('password-match-error');
+    const registerForm = document.querySelector('form[method="post"]');
+
+    function checkPasswordsMatch() {
+        const mismatch = confirmInput.value.length > 0 && passwordInput.value !== confirmInput.value;
+        matchError.style.display = mismatch ? 'block' : 'none';
+        confirmInput.classList.toggle('is-invalid', mismatch);
+        confirmInput.setCustomValidity(mismatch ? 'Passwords do not match.' : '');
+        return !mismatch;
+    }
+
+    passwordInput.addEventListener('input', checkPasswordsMatch);
+    confirmInput.addEventListener('input', checkPasswordsMatch);
+
+    registerForm.addEventListener('submit', function(e) {
+        if (!checkPasswordsMatch()) {
+            e.preventDefault();
+            const btn = registerForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.classList.remove('is-loading');
+                btn.disabled = false;
+            }
+        }
+    });
+</script>
+{% endblock %}

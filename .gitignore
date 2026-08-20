@@ -1,0 +1,24 @@
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json
+
+# Secrets — never commit
+.env
+db.sqlite3
+__pycache__/
+*.pyc
+
+# Virtual environment
+arun/
+venv/
+.venv/
+
+# Django
+media/
+staticfiles/
+*.log
+
+# Editor/OS cruft
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

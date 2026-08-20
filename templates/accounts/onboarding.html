@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="onboarding">
+    <h1>Welcome, {{ user.profile.full_name }}! 👋</h1>
+    <p>You're about to take a short learning assessment. It will help us understand how you learn best and create a personalized Learning Profile just for you.</p>
+
+    <div class="onboarding-steps">
+        <div class="onboarding-step">
+            <span class="onboarding-step__number">1</span>
+            <span>Answer 25 short questions about how you learn</span>
+        </div>
+        <div class="onboarding-step">
+            <span class="onboarding-step__number">2</span>
+            <span>Your answers are saved automatically — no progress lost</span>
+        </div>
+        <div class="onboarding-step">
+            <span class="onboarding-step__number">3</span>
+            <span>Get your personalized Learning Profile with strengths and recommendations</span>
+        </div>
+    </div>
+
+    <p class="text-muted" style="font-size: 0.85rem;">Takes about 5–8 minutes. There are no right or wrong answers.</p>
+
+    <a href="{% url 'assessment:take' %}" class="btn btn--primary btn--large mt-lg">Start Assessment →</a>
+</div>
+{% endblock %}

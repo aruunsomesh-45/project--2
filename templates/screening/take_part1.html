@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Screening Test — Part 1{% endblock %}
+
+{% block content %}
+<div class="assessment-container">
+    <div class="assessment-progress">
+        <div class="assessment-progress__text">
+            <span>Part 1 of 2 — Core Adaptive Test</span>
+            <span>{{ answered }} of {{ total }} answered</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-bar__fill" style="width: {% widthratio answered total 100 %}%;"></div>
+        </div>
+    </div>
+
+    {% if question %}
+        <div class="assessment-question">
+            <p class="text-muted" style="font-size: 0.8rem; margin-bottom: var(--space-xs);">
+                {% if question.topic %}{{ question.topic }} — {{ question.get_difficulty_display }}{% else %}Learning Style{% endif %}
+            </p>
+            {% if question.passage %}
+                <div class="card" style="background: var(--bg-surface); font-style: italic; margin-bottom: var(--space-md); padding: var(--space-md);">
+                    {{ question.passage }}
+                </div>
+            {% endif %}
+            <h2>{{ question.question_text }}</h2>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="stage" value="part1">
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+            <div class="answer-options">
+                {% for opt in question.options %}
+                    <label class="answer-option">
+                        <input type="radio" name="answer" value="{{ opt.label }}" required>
+                        <span><strong>{{ opt.label }})</strong> {{ opt.text }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            <div class="assessment-nav">
+                <span></span>
+                <button type="submit" class="btn btn--primary">Next →</button>
+            </div>
+        </form>
+    {% else %}
+        <p class="text-muted">Loading next question…</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.answer-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
+            radio.closest('.answer-option').classList.add('selected');
+        });
+    });
+</script>
+{% endblock %}

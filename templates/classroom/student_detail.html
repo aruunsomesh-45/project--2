@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+
+{% block title %}Teaching Intelligence: {{ student_user.profile.full_name }} — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <div style="margin-bottom: var(--space-lg); display: flex; justify-content: space-between; align-items: center;">
+        <a href="javascript:history.back()" class="text-muted" style="font-size: 0.875rem; text-decoration: none;">← Back</a>
+        <div style="display: flex; gap: var(--space-sm);">
+            <a href="{% url 'study_plans_teacher:student_progress' student_user.id %}" class="btn btn--secondary btn--sm">Study Progress →</a>
+            <a href="{% url 'study_plans_teacher:create' student_user.id %}" class="btn btn--secondary btn--sm">New Study Plan →</a>
+            <a href="{% url 'classroom:student_screening_report' student_user.id %}" class="btn btn--secondary btn--sm">View Screening Report →</a>
+        </div>
+    </div>
+
+    <!-- Student Profile Header Card -->
+    <div class="card" style="margin-bottom: var(--space-xl); padding: var(--space-xl); border-left: 6px solid var(--accent-primary);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+            <div>
+                <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Student Intelligence Profile</div>
+                <h1 style="margin-bottom: var(--space-xs);">{{ student_user.profile.full_name }}</h1>
+                <p class="text-muted" style="margin-bottom: 0;">Enrolled in:
+                    {% for c in shared_classes %}
+                        <strong style="color: var(--text-primary);">{{ c.name }}</strong>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <div style="margin-top: var(--space-sm);">
+                    {% if assessment_status == 'completed' %}
+                        <span style="display: inline-block; background: #f0fdf4; color: var(--state-success); font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 9999px; border: 1px solid #bbf7d0;">Assessment: Completed</span>
+                    {% elif assessment_status == 'in_progress' %}
+                        <span style="display: inline-block; background: #fffbeb; color: var(--state-warning); font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 9999px; border: 1px solid #fde68a;">Assessment: In Progress ({{ answered_questions }}/{{ total_questions }})</span>
+                    {% else %}
+                        <span style="display: inline-block; background: var(--bg-surface); color: var(--text-muted); font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 9999px; border: 1px solid var(--border-default);">Assessment: Not Started</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if learning_profile %}
+                <div style="background: #EEF2FF; border: 1px solid #C7D2FE; padding: var(--space-sm) var(--space-lg); border-radius: var(--radius-md); text-align: center;">
+                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.05em;">Learning Profile</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent-primary);">{{ learning_profile.archetype }}</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if learning_profile %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl);">
+            <!-- Left Column: Learning Dimension Scores -->
+            <div class="card">
+                <h2 style="font-size: 1.25rem; margin-bottom: var(--space-lg);">Learning Dimensions</h2>
+                <div style="display: flex; flex-direction: column; gap: var(--space-lg);">
+                    {% for dim in sorted_dimensions %}
+                        <div class="dimension-detail" style="cursor: pointer;" tabindex="0" role="button" aria-expanded="false">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: var(--space-sm);">
+                                <span style="font-weight: 500; font-size: 0.9375rem;">{{ dim.name }}</span>
+                                <span style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="text-muted" style="font-size: 0.75rem;">{{ dim.level }}</span>
+                                    <span style="font-weight: 700; font-size: 0.9375rem; font-variant-numeric: tabular-nums;">{{ dim.score }}%</span>
+                                </span>
+                            </div>
+                            <div style="width: 100%; height: 10px; background: var(--bg-surface); border-radius: 9999px; overflow: hidden; border: 1px solid var(--border-default);">
+                                <div class="dimension-bar__fill" style="--bar-pct: {{ dim.score }}%;"></div>
+                            </div>
+                            <p class="dimension-detail__interpretation text-muted" style="font-size: 0.8125rem; margin-top: 6px; margin-bottom: 0; display: none;">{{ dim.interpretation }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Column: Strengths & Challenges -->
+            <div style="display: flex; flex-direction: column; gap: var(--space-xl);">
+                <!-- Strengths -->
+                <div class="card" style="border-top: 4px solid var(--state-success);">
+                    <h2 style="font-size: 1.125rem; color: var(--state-success); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+                        <span>✓</span> Strengths
+                    </h2>
+                    <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-sm);">
+                        {% for item in learning_profile.strengths %}
+                            <li style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.9375rem;">
+                                <span style="color: var(--state-success); font-weight: 700;">✓</span>
+                                <span>{{ item }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Development Areas -->
+                <div class="card" style="border-top: 4px solid var(--state-warning);">
+                    <h2 style="font-size: 1.125rem; color: var(--state-warning); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+                        <span>→</span> Development Areas
+                    </h2>
+                    {% if learning_profile.challenges %}
+                        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-sm);">
+                            {% for item in learning_profile.challenges %}
+                                <li style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.9375rem;">
+                                    <span style="color: var(--state-warning); font-weight: 700;">→</span>
+                                    <span>{{ item }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted" style="margin-bottom: 0; font-size: 0.875rem;">No specific development areas stood out in this assessment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Width Bottom Section: Recommended Teaching Approaches -->
+        <div class="card" style="margin-top: var(--space-xl); background: #F8FAFC; border: 1px solid var(--border-default);">
+            <h2 style="font-size: 1.25rem; margin-bottom: var(--space-md); color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                <span>➔</span> Recommended Teaching Approaches
+            </h2>
+            <p class="text-muted" style="font-size: 0.875rem; margin-bottom: var(--space-md);">Actionable teaching strategies tailored to {{ student_user.profile.full_name }}'s profile archetype (<strong>{{ learning_profile.archetype }}</strong>):</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-md);">
+                {% for rec in learning_profile.recommendations %}
+                    <div style="background: var(--bg-base); padding: var(--space-md); border-radius: var(--radius-md); border: 1px solid var(--border-default); display: flex; gap: var(--space-sm);">
+                        <span style="color: var(--accent-primary); font-weight: 700; font-size: 1.125rem; line-height: 1;">➔</span>
+                        <div style="font-size: 0.9375rem; color: var(--text-primary);">{{ rec }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ==================== AI Intelligence Layer (Phase 3) ==================== -->
+        <div style="margin-top: var(--space-2xl);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); flex-wrap: wrap; gap: var(--space-sm);">
+                <h2 style="font-size: 1.375rem; margin-bottom: 0;">AI Learning Insight</h2>
+                <div style="display: flex; gap: var(--space-sm);">
+                    {% if not ai_insight or ai_insight.status != 'ready' %}
+                        <form method="post" action="{% url 'ai_insights:generate' student_user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn--primary btn--sm">Generate AI Insights</button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{% url 'ai_insights:regenerate' student_user.id %}" data-confirm="Regenerating will create a new AI interpretation based on this student's current assessment profile. Your existing insights will be kept as a backup, not deleted." data-no-loading-state="true" id="regenerate-ai-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn--secondary btn--sm">Regenerate AI Insights</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if not ai_insight %}
+                <div class="card" style="text-align: center; padding: var(--space-2xl);">
+                    <p class="text-muted" style="margin-bottom: 0;">No AI insights generated yet for {{ student_user.profile.full_name }}. Click "Generate AI Insights" above — this may take a few seconds.</p>
+                </div>
+            {% elif ai_insight.status == 'failed' %}
+                <div class="card" style="text-align: center; padding: var(--space-2xl); border: 1px solid #fde68a; background: #fffbeb;">
+                    <p style="margin-bottom: 0; color: var(--state-warning); font-weight: 600;">AI insights are temporarily unavailable.</p>
+                    <p class="text-muted" style="margin-top: var(--space-xs); margin-bottom: 0; font-size: 0.875rem;">The learning profile above is unaffected — try generating again in a moment.</p>
+                </div>
+            {% else %}
+                <!-- AI Overview -->
+                <div class="card" style="background: #EEF2FF; border: 1px solid #C7D2FE; margin-bottom: var(--space-lg);">
+                    <p style="font-size: 1rem; line-height: 1.6; margin-bottom: var(--space-sm);">{{ ai_insight.overview }}</p>
+                    <p class="text-muted" style="font-size: 0.75rem; margin-bottom: 0;">
+                        AI-generated interpretation based on assessment responses — a suggestion for professional judgment, not a diagnosis.
+                        {% if sorted_dimensions %}
+                            Based primarily on: {% for dim in sorted_dimensions|slice:":2" %}{{ dim.name }} ({{ dim.score }}%){% if not forloop.last %}, {% endif %}{% endfor %}.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Primary: How to Teach This Student -->
+                {% if ai_insight.teaching_strategies %}
+                <div class="card" style="margin-bottom: var(--space-lg); border-top: 4px solid var(--accent-primary);">
+                    <h3 style="font-size: 1.125rem; margin-bottom: var(--space-md);">How to Teach {{ student_user.profile.full_name|default:"This Student" }}</h3>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                        {% for item in ai_insight.teaching_strategies %}
+                            <div style="border-left: 3px solid var(--accent-primary); padding-left: var(--space-md);">
+                                <div style="font-weight: 600;">{{ forloop.counter }}. {{ item.strategy }}</div>
+                                <div class="text-muted" style="font-size: 0.875rem; margin-top: 2px;"><strong>Why:</strong> {{ item.reason }}</div>
+                                {% if item.example %}<div class="text-muted" style="font-size: 0.875rem; margin-top: 2px;"><strong>Example:</strong> {{ item.example }}</div>{% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); margin-bottom: var(--space-lg);">
+                    <!-- Learning Preferences -->
+                    {% if ai_insight.learning_preferences %}
+                    <div class="card">
+                        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Learning Preferences</h3>
+                        <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                            {% for pref in ai_insight.learning_preferences %}
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.9375rem;">{{ pref.title }}</div>
+                                    <div class="text-muted" style="font-size: 0.875rem;">{{ pref.description }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Communication -->
+                    {% if ai_insight.communication %}
+                    <div class="card">
+                        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Communication</h3>
+                        <p class="text-muted" style="font-size: 0.8125rem; margin-bottom: var(--space-sm);">May respond well to:</p>
+                        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px;">
+                            {% for item in ai_insight.communication %}
+                                <li style="font-size: 0.9375rem;">• {{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Strength Insights -->
+                    {% if ai_insight.strength_insights %}
+                    <div class="card" style="border-top: 4px solid var(--state-success);">
+                        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Strength Insights</h3>
+                        <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                            {% for item in ai_insight.strength_insights %}
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.9375rem;">{{ item.strength }}</div>
+                                    <div class="text-muted" style="font-size: 0.875rem;">{{ item.interpretation }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Development Insights -->
+                    {% if ai_insight.development_insights %}
+                    <div class="card" style="border-top: 4px solid var(--state-warning);">
+                        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Development Areas</h3>
+                        <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                            {% for item in ai_insight.development_insights %}
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.9375rem;">{{ item.area }}</div>
+                                    <div class="text-muted" style="font-size: 0.875rem;">{{ item.interpretation }}</div>
+                                    {% if item.suggestion %}<div class="text-muted" style="font-size: 0.875rem; margin-top: 2px;"><strong>Suggestion:</strong> {{ item.suggestion }}</div>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Classroom Recommendations -->
+                    {% if ai_insight.classroom_recommendations %}
+                    <div class="card">
+                        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Classroom Environment</h3>
+                        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px;">
+                            {% for item in ai_insight.classroom_recommendations %}
+                                <li style="font-size: 0.9375rem;">• {{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Potential Challenges -->
+                    {% if ai_insight.potential_challenges %}
+                    <div class="card">
+                        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Potential Challenges</h3>
+                        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px;">
+                            {% for item in ai_insight.potential_challenges %}
+                                <li class="text-muted" style="font-size: 0.9375rem;">{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Teacher Action Items -->
+                {% if ai_insight.teacher_actions %}
+                <div class="card" style="margin-bottom: var(--space-lg);">
+                    <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Next Steps</h3>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for item in ai_insight.teacher_actions %}
+                            <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.9375rem;">
+                                <input type="checkbox" style="margin-top: 3px;">
+                                <span>{{ item }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <p class="text-muted" style="font-size: 0.8125rem; text-align: center;">These recommendations are AI-generated suggestions. Use professional judgment when applying them.</p>
+            {% endif %}
+        </div>
+        <!-- ==================== /AI Intelligence Layer ==================== -->
+    {% elif assessment_status == 'in_progress' %}
+        <div class="card" style="text-align: center; padding: var(--space-3xl);">
+            <h2>Assessment Incomplete</h2>
+            <p class="text-muted" style="margin-top: var(--space-sm);">
+                {{ student_user.profile.full_name }} has answered {{ answered_questions }} of {{ total_questions }} questions.
+                The learning profile will become available once the assessment is completed.
+            </p>
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: var(--space-3xl);">
+            <h2>Assessment Not Started</h2>
+            <p class="text-muted" style="margin-top: var(--space-sm);">{{ student_user.profile.full_name }} has not started the learning assessment yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Click a dimension to reveal its short interpretation text
+    document.querySelectorAll('.dimension-detail').forEach(el => {
+        const toggle = () => {
+            const text = el.querySelector('.dimension-detail__interpretation');
+            const expanded = text.style.display !== 'none';
+            text.style.display = expanded ? 'none' : 'block';
+            el.setAttribute('aria-expanded', String(!expanded));
+        };
+        el.addEventListener('click', toggle);
+        el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggle();
+            }
+        });
+    });
+
+    // AI generate/regenerate: show a clear loading state — generation can
+    // take a few seconds, and this is a normal (non-AJAX) POST+redirect,
+    // so the button stays in its loading state until the new page loads.
+    document.querySelectorAll('form[action*="ai-insights"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (form.dataset.confirm && !confirm(form.dataset.confirm)) {
+                e.preventDefault();
+                return;
+            }
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                btn.textContent = 'Analyzing learning profile…';
+            }
+        });
+    });
+</script>
+{% endblock %}

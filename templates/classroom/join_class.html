@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Join a Class — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl); max-width: 800px;">
+    <h1 style="margin-bottom: var(--space-xs);">Join a Class</h1>
+    <p class="text-muted" style="margin-bottom: var(--space-xl);">Enter the 6-character class code provided by your teacher to join their class.</p>
+
+    <!-- Form Card -->
+    <div class="card" style="margin-bottom: var(--space-2xl);">
+        <form method="post" action="{% url 'classroom:join_class' %}" style="display: flex; gap: var(--space-md); align-items: flex-end; flex-wrap: wrap;">
+            {% csrf_token %}
+            <div class="form-group" style="flex: 1; min-width: 240px; margin-bottom: 0;">
+                <label for="class_code">Class Code</label>
+                <input type="text" id="class_code" name="class_code" class="form-control" placeholder="e.g. X7K9P2" maxlength="10" required style="font-family: monospace; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">
+            </div>
+            <button type="submit" class="btn btn--primary" style="height: 44px;">Join Class</button>
+        </form>
+    </div>
+
+    <!-- Enrolled Classes -->
+    <h2>Your Enrolled Classes ({{ enrolled_classes|length }})</h2>
+    <div style="margin-top: var(--space-md);">
+        {% if enrolled_classes %}
+            <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                {% for enrolment in enrolled_classes %}
+                    <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-lg);">
+                        <div>
+                            <h3 style="font-size: 1.125rem; margin-bottom: var(--space-xs);">{{ enrolment.classroom.name }}</h3>
+                            <p class="text-muted" style="margin-bottom: 0; font-size: 0.875rem;">
+                                Teacher: <strong>{{ enrolment.classroom.teacher.profile.full_name }}</strong>
+                            </p>
+                        </div>
+                        <div style="font-size: 0.8125rem; color: var(--text-muted);">
+                            Joined {{ enrolment.joined_at|date:"M d, Y" }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card" style="text-align: center; padding: var(--space-xl);">
+                <p class="text-muted" style="margin-bottom: 0;">You haven't joined any classes yet. Enter a code above to get started!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

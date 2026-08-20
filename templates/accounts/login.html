@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card card card--elevated">
+        <h1>Welcome back</h1>
+        <p class="text-muted">Log in to continue your learning journey</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="id_username">Email</label>
+                <input type="email" name="username" id="id_username"
+                       class="form-control {% if form.non_field_errors %}is-invalid{% endif %}"
+                       placeholder="you@example.com"
+                       value="{{ form.username.value|default:'' }}" required>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password"
+                       class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                       placeholder="Your password" required>
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Form errors -->
+            {% if form.non_field_errors %}
+                <div class="form-errors" style="margin-bottom: var(--space-md);">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn--primary btn--large btn--full">Log In</button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <p>Or</p>
+            <form action="{% url 'social:begin' 'google-oauth2' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--google" style="display: block; width: 100%; background-color: #fff; color: #757575; border: 1px solid #ccc; padding: 10px; border-radius: 4px; font-weight: 500; cursor: pointer;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style="height:1em; vertical-align:middle; margin-right:0.5rem;"/>
+                    Sign in with Google
+                </button>
+            </form>
+        </div>
+
+        <p class="auth-footer">
+            Don't have an account? <a href="{% url 'accounts:register' %}">Sign up</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

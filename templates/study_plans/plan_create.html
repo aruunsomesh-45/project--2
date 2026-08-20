@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}New Study Plan — {{ student.profile.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container container--medium" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <div style="margin-bottom: var(--space-lg);">
+        <a href="{% url 'classroom:student_profile' student.id %}" class="text-muted" style="font-size: 0.875rem; text-decoration: none;">← Back to {{ student.profile.full_name }}</a>
+    </div>
+
+    <div class="card" style="padding: var(--space-xl);">
+        <h1 style="margin-bottom: var(--space-xs);">New Study Plan</h1>
+        <p class="text-muted" style="margin-bottom: var(--space-lg);">For {{ student.profile.full_name }} — you'll review and approve every task before the student sees it.</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" class="form-control" placeholder="e.g. Mathematics" required>
+                </div>
+                <div class="form-group">
+                    <label for="difficulty">Difficulty</label>
+                    <select id="difficulty" name="difficulty" class="form-control">
+                        {% for code, label in difficulty_choices %}
+                            <option value="{{ code }}" {% if code == 'intermediate' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="goal">Goal</label>
+                <input type="text" id="goal" name="goal" class="form-control" placeholder="e.g. Pass the final examination" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md);">
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="exam_date">Exam Date <span class="text-muted">(optional)</span></label>
+                    <input type="date" id="exam_date" name="exam_date" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="daily_minutes">Daily Study Time (minutes)</label>
+                <input type="number" id="daily_minutes" name="daily_minutes" class="form-control" min="1" value="60" required>
+            </div>
+
+            <div class="form-group">
+                <label>Available Days</label>
+                <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-xs);">
+                    {% for code, label in weekday_choices %}
+                        <label style="display: flex; align-items: center; gap: 6px; background: var(--bg-surface); border: 1px solid var(--border-default); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.875rem;">
+                            <input type="checkbox" name="available_days" value="{{ code }}" {% if code < 5 %}checked{% endif %}>
+                            {{ label }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="teacher_instructions">Teacher Instructions <span class="text-muted">(optional)</span></label>
+                <textarea id="teacher_instructions" name="teacher_instructions" class="form-control" rows="3" placeholder="Anything the AI should factor in, e.g. focus areas, pace preferences..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--large">Create Draft</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

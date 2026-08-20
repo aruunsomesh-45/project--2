@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ class_obj.name }} — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl); max-width: 700px;">
+    <div style="margin-bottom: var(--space-lg);">
+        <a href="{% url 'classroom:class_detail' class_obj.pk %}" class="text-muted" style="font-size: 0.875rem; text-decoration: none;">← Back to Class</a>
+    </div>
+
+    <div class="card" style="padding: var(--space-lg);">
+        <h1 style="margin-bottom: var(--space-lg);">Edit Class</h1>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="name">Class Name</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ class_obj.name }}" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md);">
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" class="form-control" value="{{ class_obj.subject }}">
+                </div>
+                <div class="form-group">
+                    <label for="grade">Grade</label>
+                    <input type="text" id="grade" name="grade" class="form-control" value="{{ class_obj.grade }}">
+                </div>
+                <div class="form-group">
+                    <label for="section">Section</label>
+                    <input type="text" id="section" name="section" class="form-control" value="{{ class_obj.section }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" class="form-control" rows="3">{{ class_obj.description }}</textarea>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: var(--space-sm);">
+                <input type="checkbox" id="is_active" name="is_active" {% if class_obj.is_active %}checked{% endif %} style="width: auto;">
+                <label for="is_active" style="margin-bottom: 0;">Active (students can join and this class shows as active)</label>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--large">Save Changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

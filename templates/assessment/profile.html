@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Learning Profile — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container container--medium">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <span class="profile-archetype">{{ profile.archetype }}</span>
+        <h1>Your Learning Profile</h1>
+        <p class="text-muted">Here's what your assessment revealed about how you learn best.</p>
+    </div>
+
+    <!-- Dimension Scores -->
+    <div class="profile-section card">
+        <h3>Learning Dimensions</h3>
+        {% for dimension, score in sorted_dimensions %}
+        <div class="dimension-bar">
+            <span class="dimension-bar__label">{{ dimension }}</span>
+            <div class="dimension-bar__track">
+                <div class="dimension-bar__fill" style="--bar-pct: {{ score }}%;"></div>
+            </div>
+            <span class="dimension-bar__value">{{ score }}%</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Strengths -->
+    {% if profile.strengths %}
+    <div class="profile-section card">
+        <h3>Your Strengths</h3>
+        {% for strength in profile.strengths %}
+        <div class="profile-item profile-item--strength">
+            <span class="profile-item__icon">✓</span>
+            <span>{{ strength }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Challenges -->
+    {% if profile.challenges %}
+    <div class="profile-section card">
+        <h3>Areas for Growth</h3>
+        {% for challenge in profile.challenges %}
+        <div class="profile-item profile-item--challenge">
+            <span class="profile-item__icon">⚠</span>
+            <span>{{ challenge }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Recommendations -->
+    {% if profile.recommendations %}
+    <div class="profile-section card">
+        <h3>Recommendations for You</h3>
+        {% for rec in profile.recommendations %}
+        <div class="profile-item profile-item--recommendation">
+            <span class="profile-item__icon">→</span>
+            <span>{{ rec }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

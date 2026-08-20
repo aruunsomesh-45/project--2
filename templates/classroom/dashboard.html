@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl);">
+        <div>
+            <h1>Teacher Dashboard</h1>
+            <p class="text-muted" style="margin-bottom: 0;">Manage your classes and access student learning intelligence.</p>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-xl);">
+        <div class="card" style="padding: var(--space-lg);">
+            <div class="text-muted" style="font-size: 0.8125rem; margin-bottom: 4px;">Classes</div>
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.class_count }}</div>
+        </div>
+        <div class="card" style="padding: var(--space-lg);">
+            <div class="text-muted" style="font-size: 0.8125rem; margin-bottom: 4px;">Students</div>
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.student_count }}</div>
+        </div>
+        <div class="card" style="padding: var(--space-lg);">
+            <div class="text-muted" style="font-size: 0.8125rem; margin-bottom: 4px;">Active Classes</div>
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.active_class_count }}</div>
+        </div>
+        <div class="card" style="padding: var(--space-lg);">
+            <div class="text-muted" style="font-size: 0.8125rem; margin-bottom: 4px;">Pending Assessments</div>
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.pending_assessments }}</div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-xl);">
+        <!-- Create Class Form -->
+        <div class="card" style="height: fit-content;">
+            <h2 style="font-size: 1.25rem; margin-bottom: var(--space-md);">Create New Class</h2>
+            <form method="post" action="{% url 'classroom:dashboard' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="class-name">Class Name</label>
+                    <input type="text" id="class-name" name="name" class="form-control" placeholder="e.g. Grade 10 Mathematics" required>
+                </div>
+                <div class="form-group">
+                    <label for="class-subject">Subject</label>
+                    <input type="text" id="class-subject" name="subject" class="form-control" placeholder="e.g. Mathematics">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                    <div class="form-group">
+                        <label for="class-grade">Grade</label>
+                        <input type="text" id="class-grade" name="grade" class="form-control" placeholder="e.g. 10">
+                    </div>
+                    <div class="form-group">
+                        <label for="class-section">Section</label>
+                        <input type="text" id="class-section" name="section" class="form-control" placeholder="e.g. A">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="class-description">Description</label>
+                    <textarea id="class-description" name="description" class="form-control" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full">Create Class & Generate Code</button>
+            </form>
+        </div>
+
+        <!-- Class List -->
+        <div>
+            <h2 style="font-size: 1.25rem; margin-bottom: var(--space-md);">Your Classes ({{ classes|length }})</h2>
+            {% if classes %}
+                <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                    {% for class_obj in classes %}
+                        <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-lg);">
+                            <div>
+                                <h3 style="font-size: 1.125rem; margin-bottom: var(--space-xs); display: flex; align-items: center; gap: var(--space-sm);">
+                                    <a href="{% url 'classroom:class_detail' class_obj.pk %}" style="color: var(--text-primary); text-decoration: none;">
+                                        {{ class_obj.name }}
+                                    </a>
+                                    {% if not class_obj.is_active %}
+                                        <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); background: var(--bg-surface); border: 1px solid var(--border-default); padding: 2px 8px; border-radius: 9999px;">Inactive</span>
+                                    {% endif %}
+                                </h3>
+                                <div style="display: flex; align-items: center; gap: var(--space-md); font-size: 0.875rem; flex-wrap: wrap;" class="text-muted">
+                                    {% if class_obj.subject or class_obj.grade %}
+                                        <span>{{ class_obj.subject }}{% if class_obj.grade %} · Grade {{ class_obj.grade }}{% endif %}{% if class_obj.section %} {{ class_obj.section }}{% endif %}</span>
+                                        <span>•</span>
+                                    {% endif %}
+                                    <span>Code: <strong style="font-family: monospace; background: var(--bg-surface); padding: 2px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-default); color: var(--accent-primary); letter-spacing: 1px;">{{ class_obj.class_code }}</strong></span>
+                                    <span>•</span>
+                                    <span>{{ class_obj.enrolments.count }} Student{{ class_obj.enrolments.count|pluralize }}</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: var(--space-sm); align-items: center;">
+                                <a href="{% url 'classroom:class_detail' class_obj.pk %}" class="btn btn--secondary">View Roster →</a>
+                                <form method="post" action="{% url 'classroom:class_delete' class_obj.pk %}"
+                                      data-confirm="Delete &quot;{{ class_obj.name }}&quot;? This removes all {{ class_obj.enrolments.count }} enrolled student(s). This cannot be undone."
+                                      data-no-loading-state="true">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn--ghost btn--sm" style="color: var(--state-error);">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card" style="text-align: center; padding: var(--space-2xl);">
+                    <p class="text-muted" style="margin-bottom: var(--space-md);">You haven't created any classes yet.</p>
+                    <p style="font-size: 0.875rem; color: var(--text-muted);">Use the form on the left to create your first class and get a shareable code for your students.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('form[data-confirm]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm(form.dataset.confirm)) {
+                e.preventDefault();
+                return;
+            }
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn && !btn.disabled) {
+                btn.classList.add('is-loading');
+                btn.disabled = true;
+            }
+        });
+    });
+</script>
+{% endblock %}

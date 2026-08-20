@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Plans — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <h1 style="margin-bottom: var(--space-xs);">Study Plans</h1>
+    <p class="text-muted" style="margin-bottom: var(--space-xl);">All study plans across your classes.</p>
+
+    {% if plans_with_progress %}
+        <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+            {% for item in plans_with_progress %}
+                <a href="{% url 'study_plans_teacher:detail' item.plan.pk %}" class="card" style="display: block; padding: var(--space-lg); text-decoration: none; color: inherit;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md);">
+                        <div>
+                            <strong>{{ item.plan.student.profile.full_name }}</strong> — {{ item.plan.subject }}
+                            <div class="text-muted" style="font-size: 0.8125rem;">{{ item.plan.title|default:item.plan.goal }} · {{ item.plan.get_status_display }}</div>
+                        </div>
+                        {% if item.plan.status != 'draft' %}
+                            <div style="min-width: 160px;">
+                                <div class="progress-bar"><div class="progress-bar__fill" style="width: {{ item.progress.completion_pct }}%;"></div></div>
+                                <div class="text-muted" style="font-size: 0.75rem; margin-top: 2px;">{{ item.progress.completion_pct }}% complete</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: var(--space-2xl);">
+            <p class="text-muted" style="margin-bottom: 0;">No study plans yet. Open a student's profile to create one.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

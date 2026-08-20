@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student_user.profile.full_name }}'s Progress — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container container--medium" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <div style="margin-bottom: var(--space-lg);">
+        <a href="{% url 'classroom:student_profile' student_user.id %}" class="text-muted" style="font-size: 0.875rem; text-decoration: none;">← Back to {{ student_user.profile.full_name }}</a>
+    </div>
+    <h1 style="margin-bottom: var(--space-xl);">{{ student_user.profile.full_name }}'s Study Progress</h1>
+
+    {% if plans_with_progress %}
+        {% for item in plans_with_progress %}
+            <div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-lg);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                    <div>
+                        <strong>{{ item.plan.subject }}</strong>
+                        <span class="text-muted" style="font-size: 0.8125rem;"> — {{ item.plan.title|default:item.plan.goal }}</span>
+                    </div>
+                    <a href="{% url 'study_plans_teacher:detail' item.plan.pk %}" class="btn btn--secondary btn--sm">View Plan →</a>
+                </div>
+                <div class="progress-bar"><div class="progress-bar__fill" style="width: {{ item.progress.completion_pct }}%;"></div></div>
+                <div style="display: flex; gap: var(--space-lg); margin-top: var(--space-sm); font-size: 0.8125rem;" class="text-muted">
+                    <span><strong style="color: var(--text-primary);">{{ item.progress.completion_pct }}%</strong> complete</span>
+                    <span>{{ item.progress.completed_tasks }}/{{ item.progress.total_tasks }} tasks</span>
+                    <span>{{ item.progress.completed_minutes }} min studied</span>
+                    {% if item.progress.overdue_tasks %}<span style="color: var(--state-error);">{{ item.progress.overdue_tasks }} overdue</span>{% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align: center; padding: var(--space-2xl);">
+            <p class="text-muted" style="margin-bottom: 0;">No active or completed study plans yet for {{ student_user.profile.full_name }}.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

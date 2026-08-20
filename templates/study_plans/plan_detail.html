@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ plan.title|default:plan.subject }} — Study Plan{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl); max-width: 900px;">
+    <div style="margin-bottom: var(--space-lg);">
+        <a href="{% url 'classroom:student_profile' plan.student.id %}" class="text-muted" style="font-size: 0.875rem; text-decoration: none;">← Back to {{ plan.student.profile.full_name }}</a>
+    </div>
+
+    <div class="card" style="padding: var(--space-xl); margin-bottom: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+            <div>
+                <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: 4px;">
+                    <h1 style="margin-bottom: 0;">{{ plan.title|default:plan.subject }}</h1>
+                    <span style="font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 9999px;
+                        {% if plan.status == 'active' %}background:#f0fdf4;color:var(--state-success);border:1px solid #bbf7d0;
+                        {% elif plan.status == 'draft' %}background:var(--bg-surface);color:var(--text-muted);border:1px solid var(--border-default);
+                        {% elif plan.status == 'completed' %}background:#EEF2FF;color:var(--accent-primary);border:1px solid #C7D2FE;
+                        {% else %}background:var(--bg-surface);color:var(--text-muted);border:1px solid var(--border-default);{% endif %}">
+                        {{ plan.get_status_display }}
+                    </span>
+                </div>
+                <p class="text-muted" style="margin-bottom: 0;">{{ plan.student.profile.full_name }} · {{ plan.subject }} · {{ plan.goal }}</p>
+                <p class="text-muted" style="font-size: 0.8125rem; margin-top: 4px;">
+                    {{ plan.start_date|date:"M d" }} – {{ plan.end_date|date:"M d, Y" }}
+                    {% if plan.exam_date %} · Exam: {{ plan.exam_date|date:"M d, Y" }}{% endif %}
+                    · {{ plan.daily_minutes }} min/day · {{ plan.get_difficulty_display }}
+                </p>
+                {% if plan.description %}<p style="margin-top: var(--space-sm); margin-bottom: 0;">{{ plan.description }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div style="margin-top: var(--space-lg); display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+            {% if plan.status == 'draft' %}
+                <form method="post" action="{% url 'study_plans_teacher:generate' plan.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--primary">{% if plan.tasks.exists %}Regenerate with AI{% else %}Generate with AI{% endif %}</button>
+                </form>
+                <form method="post" action="{% url 'study_plans_teacher:approve' plan.pk %}" data-confirm="Approve and assign this plan to {{ plan.student.profile.full_name }}? They'll be able to see it immediately." data-no-loading-state="true">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--secondary" {% if not plan.tasks.exists %}disabled title="Add at least one task first"{% endif %}>Approve & Assign</button>
+                </form>
+            {% elif plan.status == 'active' %}
+                <form method="post" action="{% url 'study_plans_teacher:archive' plan.pk %}" data-confirm="Archive this plan?" data-no-loading-state="true">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--ghost" style="color: var(--state-error);">Archive Plan</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if progress.total_tasks %}
+    <div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-lg);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600;">Progress</span>
+            <span style="font-weight: 700;">{{ progress.completion_pct }}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-bar__fill" style="width: {{ progress.completion_pct }}%;"></div></div>
+        <p class="text-muted" style="font-size: 0.8125rem; margin-top: var(--space-sm); margin-bottom: 0;">
+            {{ progress.completed_tasks }} completed · {{ progress.pending_tasks }} pending · {{ progress.skipped_tasks }} skipped
+            {% if progress.overdue_tasks %} · <span style="color: var(--state-error);">{{ progress.overdue_tasks }} overdue</span>{% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    {% if plan.status == 'active' %}
+    <div class="card" style="margin-bottom: var(--space-lg); padding: var(--space-lg);">
+        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-sm);">Adapt Future Tasks</h3>
+        <p class="text-muted" style="font-size: 0.8125rem; margin-bottom: var(--space-md);">Only future, not-yet-completed tasks can be changed — completed tasks and history are never touched.</p>
+
+        {% if pending_draft %}
+            <div class="card" style="background: #fffbeb; border: 1px solid #fde68a; margin-bottom: var(--space-md);">
+                <p style="margin-bottom: var(--space-sm); font-weight: 600;">Proposed adaptation ready for review ({{ pending_draft.proposed_tasks|length }} tasks)</p>
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--space-md);">
+                    {% for t in pending_draft.proposed_tasks %}
+                        <div style="font-size: 0.875rem;">{{ t.date }} — {{ t.title }} ({{ t.estimated_minutes }} min, {{ t.task_type }})</div>
+                    {% endfor %}
+                </div>
+                <div style="display: flex; gap: var(--space-sm);">
+                    <form method="post" action="{% url 'study_plans_teacher:adaptation_apply' plan.pk pending_draft.pk %}" data-confirm="Apply this adaptation? It will replace all future pending tasks." data-no-loading-state="true">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn--primary btn--sm">Apply Adaptation</button>
+                    </form>
+                    <form method="post" action="{% url 'study_plans_teacher:adaptation_discard' plan.pk pending_draft.pk %}" data-no-loading-state="true">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn--secondary btn--sm">Discard</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <form method="post" action="{% url 'study_plans_teacher:adapt_request' plan.pk %}" style="display: flex; gap: var(--space-sm); align-items: flex-end; flex-wrap: wrap;">
+                {% csrf_token %}
+                <div class="form-group" style="flex: 1; min-width: 240px; margin-bottom: 0;">
+                    <input type="text" name="teacher_instructions" class="form-control" placeholder="Optional: what should change going forward?">
+                </div>
+                <button type="submit" class="btn btn--secondary">Propose Adaptation</button>
+            </form>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Tasks -->
+    <div class="card" style="padding: var(--space-lg); margin-bottom: var(--space-lg);">
+        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Tasks</h3>
+        {% if tasks_by_date %}
+            {% for date, tasks in tasks_by_date.items %}
+                <div style="margin-bottom: var(--space-lg);">
+                    <div style="font-weight: 600; font-size: 0.875rem; color: var(--text-muted); margin-bottom: var(--space-sm);">{{ date|date:"l, M d, Y" }}</div>
+                    {% for task in tasks %}
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: var(--space-sm) 0; border-bottom: 1px solid var(--border-default); gap: var(--space-md);">
+                            <div>
+                                <div style="font-weight: 500;">{{ task.title }} <span class="text-muted" style="font-size: 0.75rem;">({{ task.get_task_type_display }}, {{ task.estimated_minutes }} min)</span></div>
+                                {% if task.description %}<div class="text-muted" style="font-size: 0.8125rem;">{{ task.description }}</div>{% endif %}
+                                {% if task.resources.all %}
+                                    <div style="margin-top: 4px; display: flex; gap: 6px; flex-wrap: wrap;">
+                                        {% for r in task.resources.all %}
+                                            <span style="font-size: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-default); padding: 2px 8px; border-radius: 9999px;">{{ r.get_resource_type_display }}: {{ r.title }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <details style="margin-top: 6px;">
+                                    <summary class="text-muted" style="font-size: 0.75rem; cursor: pointer;">Add resource</summary>
+                                    <form method="post" action="{% url 'study_plans_teacher:resource_add' plan.pk task.pk %}" style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+                                        {% csrf_token %}
+                                        <input type="text" name="title" placeholder="Resource title" class="form-control" style="max-width: 160px;" required>
+                                        <select name="resource_type" class="form-control" style="max-width: 130px;">
+                                            {% for code, label in resource_type_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+                                        </select>
+                                        <input type="url" name="url" placeholder="https://..." class="form-control" style="max-width: 200px;">
+                                        <button type="submit" class="btn btn--secondary btn--sm">Add</button>
+                                    </form>
+                                </details>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: var(--space-sm); flex-shrink: 0;">
+                                <span class="text-muted" style="font-size: 0.75rem;">{{ task.get_status_display }}</span>
+                                {% if task.status != 'completed' %}
+                                    <form method="post" action="{% url 'study_plans_teacher:task_delete' plan.pk task.pk %}" data-confirm="Delete this task?" data-no-loading-state="true">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn--ghost btn--sm" style="color: var(--state-error);">Delete</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No tasks yet. Generate with AI or add one manually below.</p>
+        {% endif %}
+    </div>
+
+    {% if plan.status == 'draft' %}
+    <div class="card" style="padding: var(--space-lg);">
+        <h3 style="font-size: 1.0625rem; margin-bottom: var(--space-md);">Add Task Manually</h3>
+        <form method="post" action="{% url 'study_plans_teacher:task_add' plan.pk %}">
+            {% csrf_token %}
+            <div class="form-group"><input type="text" name="title" class="form-control" placeholder="Task title" required></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md);">
+                <div class="form-group"><input type="date" name="date" class="form-control" min="{{ plan.start_date|date:'Y-m-d' }}" max="{{ plan.end_date|date:'Y-m-d' }}" required></div>
+                <div class="form-group"><input type="number" name="estimated_minutes" class="form-control" placeholder="Minutes" min="1" required></div>
+                <div class="form-group">
+                    <select name="task_type" class="form-control" required>
+                        {% for code, label in task_type_choices %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><textarea name="description" class="form-control" rows="2" placeholder="Optional description"></textarea></div>
+            <button type="submit" class="btn btn--secondary">Add Task</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('form[data-confirm]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm(form.dataset.confirm)) { e.preventDefault(); return; }
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn && !btn.disabled) { btn.classList.add('is-loading'); btn.disabled = true; }
+        });
+    });
+</script>
+{% endblock %}

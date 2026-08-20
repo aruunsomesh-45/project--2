@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Screening Report — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container container--medium" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <div style="margin-bottom: var(--space-lg);">
+        <a href="javascript:history.back()" class="text-muted" style="font-size: 0.875rem; text-decoration: none;">← Back</a>
+    </div>
+    <div class="card" style="text-align: center; padding: var(--space-3xl);">
+        <h2>No Screening Report Yet</h2>
+        <p class="text-muted" style="margin-top: var(--space-sm);">{{ student_user.profile.full_name }} hasn't completed the Adaptive Screening Test yet.</p>
+    </div>
+</div>
+{% endblock %}

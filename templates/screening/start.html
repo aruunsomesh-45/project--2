@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Screening Test — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="container container--medium" style="padding-top: var(--space-xl); padding-bottom: var(--space-3xl);">
+    <h1 style="margin-bottom: var(--space-xs);">Adaptive Screening Test</h1>
+    <p class="text-muted" style="margin-bottom: var(--space-xl);">
+        Select your level to load the right set of questions. Part 1 covers subject knowledge and reasoning
+        (adapts in difficulty as you answer); Part 2 is a short self-report about your interests, wellbeing, and how you work.
+    </p>
+
+    <form method="post" class="card" style="padding: var(--space-xl);">
+        {% csrf_token %}
+        <div class="role-selector" style="flex-direction: column; gap: var(--space-sm);">
+            {% for code, label in tier_choices %}
+                <label class="role-option{% if forloop.first %} selected{% endif %}">
+                    <input type="radio" name="tier" value="{{ code }}" {% if forloop.first %}checked{% endif %}>
+                    {{ label }}
+                </label>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn--primary btn--large btn--full" style="margin-top: var(--space-lg);">Start Screening Test</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.role-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
+            radio.closest('.role-option').classList.add('selected');
+        });
+    });
+</script>
+{% endblock %}

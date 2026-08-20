@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Assessment — Question {{ current_q }} of {{ total }}{% endblock %}
+
+{% block content %}
+<div class="assessment-container">
+    <!-- Progress -->
+    <div class="assessment-progress">
+        <div class="assessment-progress__text">
+            <span>Question {{ current_q }} of {{ total }}</span>
+            <span id="progress-text">{{ answered_count }} answered</span>
+            <span class="save-status" id="save-status" data-state="idle">
+                <span class="save-status__spinner"></span>
+                <span id="save-status-text"></span>
+            </span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-bar__fill" id="progress-fill" style="width: {{ progress_pct }}%;"></div>
+        </div>
+    </div>
+
+    <!-- Question -->
+    <div class="assessment-question">
+        <p class="text-muted" style="font-size: 0.8rem; margin-bottom: var(--space-xs);">{{ question.dimension }}</p>
+        <h2>{{ question.question_text }}</h2>
+    </div>
+
+    <!-- Answer Options (Likert Scale) -->
+    {% if question.question_type == 'likert' %}
+    <div class="likert-options" data-question-id="{{ question.id }}" data-question-type="likert">
+        <label class="likert-option {% if current_answer == 1 %}selected{% endif %}">
+            <input type="radio" name="answer" value="1" {% if current_answer == 1 %}checked{% endif %}>
+            <div>Strongly Disagree</div>
+        </label>
+        <label class="likert-option {% if current_answer == 2 %}selected{% endif %}">
+            <input type="radio" name="answer" value="2" {% if current_answer == 2 %}checked{% endif %}>
+            <div>Disagree</div>
+        </label>
+        <label class="likert-option {% if current_answer == 3 %}selected{% endif %}">
+            <input type="radio" name="answer" value="3" {% if current_answer == 3 %}checked{% endif %}>
+            <div>Neutral</div>
+        </label>
+        <label class="likert-option {% if current_answer == 4 %}selected{% endif %}">
+            <input type="radio" name="answer" value="4" {% if current_answer == 4 %}checked{% endif %}>
+            <div>Agree</div>
+        </label>
+        <label class="likert-option {% if current_answer == 5 %}selected{% endif %}">
+            <input type="radio" name="answer" value="5" {% if current_answer == 5 %}checked{% endif %}>
+            <div>Strongly Agree</div>
+        </label>
+    </div>
+    {% endif %}
+
+    {% if question.question_type == 'multiple_choice' %}
+    <div class="answer-options" data-question-id="{{ question.id }}" data-question-type="multiple_choice">
+        {% for option in question.options %}
+        <label class="answer-option {% if current_answer == option %}selected{% endif %}">
+            <input type="radio" name="answer" value="{{ option }}"
+                   {% if current_answer == option %}checked{% endif %}>
+            <span>{{ option }}</span>
+        </label>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="form-errors" id="required-error" style="display: none;">This question is required — select an answer to continue.</div>
+
+    <!-- Navigation -->
+    <div class="assessment-nav">
+        {% if not is_first %}
+            <a href="?q={{ current_q|add:'-1' }}" class="btn btn--secondary">← Previous</a>
+        {% else %}
+            <span></span>
+        {% endif %}
+
+        {% if is_last %}
+            <form method="post" action="{% url 'assessment:submit' %}" id="submit-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--primary btn--large"
+                        id="submit-btn"
+                        {% if not can_submit %}disabled title="Answer all questions first"{% endif %}>
+                    Submit Assessment
+                </button>
+            </form>
+        {% else %}
+            <a href="?q={{ current_q|add:'1' }}" class="btn btn--primary" id="next-btn"
+               data-answered="{% if current_answer is not None %}true{% else %}false{% endif %}">Next →</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // === Auto-save on answer selection ===
+    const csrfToken = '{{ csrf_token }}';
+
+    const saveStatus = document.getElementById('save-status');
+    const saveStatusText = document.getElementById('save-status-text');
+    const requiredError = document.getElementById('required-error');
+    const nextBtn = document.getElementById('next-btn');
+
+    function setSaveStatus(state, text) {
+        saveStatus.dataset.state = state;
+        saveStatusText.textContent = text;
+    }
+
+    // Block "Next" until the current question has a saved answer — this is
+    // what stops a student from silently skipping past a required question
+    // (previously Next was a plain link with no gating at all).
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function(e) {
+            if (nextBtn.dataset.answered !== 'true') {
+                e.preventDefault();
+                requiredError.style.display = 'block';
+                requiredError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    }
+
+    document.querySelectorAll('input[name="answer"]').forEach(input => {
+        input.addEventListener('change', async function() {
+            const container = this.closest('[data-question-id]');
+            const questionId = parseInt(container.dataset.questionId);
+            const questionType = container.dataset.questionType;
+            const optionEl = this.closest('.likert-option, .answer-option');
+
+            let answerValue;
+            if (questionType === 'likert') {
+                answerValue = parseInt(this.value);
+            } else {
+                answerValue = this.value;
+            }
+
+            // Visual feedback — mark selected
+            container.querySelectorAll('.likert-option, .answer-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            optionEl.classList.add('selected');
+            requiredError.style.display = 'none';
+
+            // Unblock "Next" immediately — selecting an option IS the answer;
+            // the save below just persists it. Waiting for the network
+            // round-trip before unblocking caused a race where clicking
+            // Next right after selecting (very normal) wrongly showed the
+            // "required" error even though an answer was already chosen.
+            if (nextBtn) {
+                nextBtn.dataset.answered = 'true';
+            }
+
+            setSaveStatus('saving', 'Saving…');
+
+            // Auto-save via AJAX
+            try {
+                const response = await fetch('{% url "assessment:save" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        question_id: questionId,
+                        answer_value: answerValue,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+
+                const data = await response.json();
+                if (data.status === 'saved') {
+                    // Update progress bar
+                    const progressFill = document.getElementById('progress-fill');
+                    const progressText = document.getElementById('progress-text');
+                    progressFill.style.width = data.progress_pct + '%';
+                    progressText.textContent = data.answered_count + ' answered';
+
+                    // Enable submit button if all answered
+                    const submitBtn = document.getElementById('submit-btn');
+                    if (submitBtn && data.answered_count >= data.total) {
+                        submitBtn.disabled = false;
+                        submitBtn.removeAttribute('title');
+                    }
+
+                    setSaveStatus('saved', 'Saved');
+                    setTimeout(() => {
+                        if (saveStatus.dataset.state === 'saved') setSaveStatus('idle', '');
+                    }, 1500);
+                } else {
+                    throw new Error(data.error || 'Could not save answer');
+                }
+            } catch (err) {
+                console.error('Auto-save failed:', err);
+                optionEl.classList.remove('selected');
+                setSaveStatus('error', 'Couldn\'t save — check your connection and try again');
+            }
+        });
+    });
+</script>
+{% endblock %}
