@@ -35,7 +35,19 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-hkl(i%i%5apfc(5(&&w&_ygx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
+    'localhost',
+    '127.0.0.1',
+    '.vercel.app',
+    'project-2-hln4.vercel.app',
+])
+
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    'https://*.vercel.app',
+    'https://project-2-hln4.vercel.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+])
 
 
 # Application definition
