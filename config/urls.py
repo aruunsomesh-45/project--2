@@ -24,7 +24,6 @@ urlpatterns = [
     path('screening/', include('screening.urls')),
     path('study-plans/', include('study_plans.urls')),
     path('classroom/', include('study_plans.teacher_urls')),
-    path('social-auth/', include('social_django.urls', namespace='social')),
 ]
 
 # Serve media files in development

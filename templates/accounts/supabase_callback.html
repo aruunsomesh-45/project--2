@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Signing you in… — LearnProfile{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card card card--elevated" style="text-align: center;">
+        <h1 id="status-heading">Signing you in…</h1>
+        <p class="text-muted" id="status-text">Please wait a moment.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Supabase redirects back here with the session in the URL fragment
+    // (#access_token=...) — fragments never reach the server, so this page
+    // reads it client-side and POSTs it to our API endpoint to finish login.
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = params.get('access_token');
+    const errorDescription = params.get('error_description');
+
+    const heading = document.getElementById('status-heading');
+    const text = document.getElementById('status-text');
+
+    async function finishLogin() {
+        if (errorDescription) {
+            heading.textContent = 'Sign-in failed';
+            text.textContent = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
+            return;
+        }
+        if (!accessToken) {
+            heading.textContent = 'Sign-in failed';
+            text.textContent = 'No session was returned. Please try again.';
+            return;
+        }
+
+        try {
+            const response = await fetch('{% url "accounts:supabase_callback_api" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: JSON.stringify({ access_token: accessToken }),
+            });
+            const data = await response.json();
+            if (response.ok && data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
+                heading.textContent = 'Sign-in failed';
+                text.textContent = data.error || 'Something went wrong. Please try again.';
+            }
+        } catch (err) {
+            heading.textContent = 'Sign-in failed';
+            text.textContent = "Couldn't reach the server. Please try again.";
+        }
+    }
+
+    finishLogin();
+</script>
+{% endblock %}

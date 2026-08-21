@@ -45,13 +45,10 @@
 
         <div style="margin-top: 20px; text-align: center;">
             <p>Or</p>
-            <form action="{% url 'social:begin' 'google-oauth2' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn--google" style="display: block; width: 100%; background-color: #fff; color: #757575; border: 1px solid #ccc; padding: 10px; border-radius: 4px; font-weight: 500; cursor: pointer;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style="height:1em; vertical-align:middle; margin-right:0.5rem;"/>
-                    Sign in with Google
-                </button>
-            </form>
+            <a href="{% url 'accounts:supabase_login' %}" class="btn btn--google" style="display: block; width: 100%; background-color: #fff; color: #757575; border: 1px solid #ccc; padding: 10px; border-radius: 4px; font-weight: 500; cursor: pointer; text-decoration: none; text-align: center;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" style="height:1em; vertical-align:middle; margin-right:0.5rem;"/>
+                Sign in with Google
+            </a>
         </div>
 
         <p class="auth-footer">
